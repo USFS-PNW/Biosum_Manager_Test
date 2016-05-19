@@ -106,25 +106,6 @@ namespace Biosum_Manager_Test
         }
 
         /// <summary>
-        ///A test for SI_LP5
-        ///</summary>
-        [TestMethod()]
-        [DeploymentItem("FIA_Biosum_Manager.exe")]
-        public void SI_LP5Test()
-        {
-            fvs_input_Accessor.site_index target = new fvs_input_Accessor.site_index(); // TODO: Initialize to an appropriate value
-            int p_intSIDiaAge = 100; 
-            int p_intSIHtFt = 49;
-            double p_dblBasalArea = 50; // TODO: Initialize to an appropriate value
-            double p_dblAvgDbh = 60; // TODO: Initialize to an appropriate value
-            double expected = 0F; // TODO: Initialize to an appropriate value
-            double actual;
-            actual = target.SI_LP5(p_intSIDiaAge, p_intSIHtFt, p_dblBasalArea, p_dblAvgDbh);
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
-        }
-
-        /// <summary>
         ///A test for SI_AS1
         ///</summary>
         [TestMethod()]
@@ -142,11 +123,11 @@ namespace Biosum_Manager_Test
         }
 
         /// <summary>
-        ///A test for site tree equations
+        ///Unit test for SI_LP5 equation
         ///</summary>
         [TestMethod()]
         [DeploymentItem("FIA_Biosum_Manager.exe")]
-        public void SiteTreesTest()
+        public void SI_LP5Test()
         {
             fvs_input_Accessor.site_index target = new fvs_input_Accessor.site_index();
             databaseName = "Eqn_28_testing.accdb";
@@ -158,9 +139,19 @@ namespace Biosum_Manager_Test
 
             //add column for results if it doesn't exist
             string resultsColumn = "calc_si";
+            string basalAreaColumn = "ba_ft2_ac";
+            string dbhColumn = "avg_dbh_plot";
             if (!oAdo.ColumnExist(oAdo.m_OleDbConnection, "SITETREE", resultsColumn))
             {
                 oAdo.AddColumn(oAdo.m_OleDbConnection, "SITETREE", resultsColumn, "DOUBLE", "");
+            }
+            if (!oAdo.ColumnExist(oAdo.m_OleDbConnection, "SITETREE", basalAreaColumn))
+            {
+                oAdo.AddColumn(oAdo.m_OleDbConnection, "SITETREE", basalAreaColumn, "DOUBLE", "");
+            }
+            if (!oAdo.ColumnExist(oAdo.m_OleDbConnection, "SITETREE", dbhColumn))
+            {
+                oAdo.AddColumn(oAdo.m_OleDbConnection, "SITETREE", dbhColumn, "DOUBLE", "");
             }
 
             string strSQL = "SELECT p.biosum_plot_id, c.biosum_cond_id, p.statecd ," + 
@@ -187,7 +178,7 @@ namespace Biosum_Manager_Test
                 lstPlotCond.Add(lstPlot);
             }
 
-            Dictionary<string, double> siteIndexRecords = new Dictionary<string, double>();
+            Dictionary<string, string> siteIndexRecords = new Dictionary<string, string>();
             foreach (List<string> lstPlot in lstPlotCond)
             {
                 this.BiosumPlotId = lstPlot[idxPlotId];
@@ -226,9 +217,24 @@ namespace Biosum_Manager_Test
                     int treeId = Convert.ToInt32(oAdo.m_OleDbDataReader["tree"]);
                     string key = this.BiosumPlotId + "_" + intCondId + "_" + treeId;
                     double siteIndex = target.SI_LP5(intCurAgeDia, intCurHtFt, p_dblBasalArea, this.conditionClassAverageDia);
-                    siteIndexRecords.Add(key, siteIndex);
+                    string value = Convert.ToString(this.conditionClassAverageDia) + "_" + Convert.ToString(p_dblBasalArea) + "_" + Convert.ToString(siteIndex);
+                    siteIndexRecords.Add(key, value);
                 }
             }
+            }
+
+            foreach (string key in siteIndexRecords.Keys)
+            {
+                string[] keyValues = key.Split('_');
+                string[] resultValues = siteIndexRecords[key].Split('_');
+                oAdo.m_strSQL = "UPDATE " + this.SiteTreeTable + " " +
+                    "SET " + resultsColumn + " = " + resultValues[2] + ", " +
+                    basalAreaColumn + " = " + resultValues[1] + ", " +
+                    dbhColumn + " = " + resultValues[0] + " " +
+                    "WHERE biosum_plot_id = '" + keyValues[0] + "' " +
+                    "AND condid = " + keyValues[1] + " " +
+                    "AND tree = " + keyValues[2];
+                oAdo.SqlNonQuery(oAdo.m_OleDbConnection, oAdo.m_strSQL);
             }
             
             oAdo.CloseConnection(oAdo.m_OleDbConnection);
@@ -265,7 +271,7 @@ namespace Biosum_Manager_Test
             _oAdo.CloseConnection(_oAdo.m_OleDbConnection);
 
             _oAdo = null;
-
         }
+
     }
 }
