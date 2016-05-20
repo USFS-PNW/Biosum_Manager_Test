@@ -195,10 +195,8 @@ namespace Biosum_Manager_Test
             "s.validcd " +
             "FROM " + this.SiteTreeTable + " s " +
             "WHERE s.biosum_plot_id = '" + this.BiosumPlotId + "' " +
-                    //"AND (s.condlist IS NULL OR " +
-                    //"INSTR('" + condId + "',CSTR(condlist)) > 0)";
-                    //"INSTR(CSTR(condlist),'" + condId + "') > 0)";
-            "AND s.condid = " + condId; //eliminates duplicate trees; Not the same as fvs_input.cs
+            "AND s.condid = " + condId + " " +
+            "AND s.validcd <> 0";
 
 
                 double p_dblBasalArea = Convert.ToDouble(lstPlot[idxBasalArea]);
