@@ -253,9 +253,11 @@ namespace Biosum_Manager_Test
 
             _oAdo.m_strSQL = "SELECT AvgDia " +
                 "FROM " +
-                "(SELECT SUM(IIF(t.tpacurr IS NOT NULL AND t.dia IS NOT NULL," +
+                //@ToDo: Reference to t.statuscd and t.dia >=1 are not in production code for calculating avg dbh
+                //Currently discussing if this should be changed
+                "(SELECT SUM(IIF(t.tpacurr IS NOT NULL AND t.dia IS NOT NULL AND t.statuscd=1  AND t.dia >= 1," +
                 "t.tpacurr * t.dia,0)) AS dividend," +
-                "SUM(IIF(t.tpacurr IS NOT NULL and t.dia IS NOT NULL," +
+                "SUM(IIF(t.tpacurr IS NOT NULL and t.dia IS NOT NULL AND t.statuscd=1  AND t.dia >= 1," +
                 "t.tpacurr,0)) as divisor," +
                 "IIF(dividend > 0 AND divisor > 0," +
                 "dividend / divisor,0) AS AvgDia " +
@@ -269,6 +271,23 @@ namespace Biosum_Manager_Test
             _oAdo.CloseConnection(_oAdo.m_OleDbConnection);
 
             _oAdo = null;
+        }
+
+        /// <summary>
+        ///A test for SI_AS1
+        ///</summary>
+        [TestMethod()]
+        [DeploymentItem("FIA_Biosum_Manager.exe")]
+        public void SI_PP6Test()
+        {
+            fvs_input_Accessor.site_index target = new fvs_input_Accessor.site_index();
+            int p_intSIDiaAge = 50;
+            int p_intSIHtFt = 15;
+            double expected = 17.231740622278654;
+            double actual;
+            actual = target.SI_PP6(p_intSIDiaAge, p_intSIHtFt);
+            Assert.AreEqual(expected, actual);
+            //Assert.Inconclusive("Verify the correctness of this test method.");
         }
 
     }
