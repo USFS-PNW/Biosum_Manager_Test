@@ -274,7 +274,7 @@ namespace Biosum_Manager_Test
         }
 
         /// <summary>
-        ///A test for SI_AS1
+        ///A test for SI_PP6
         ///</summary>
         [TestMethod()]
         [DeploymentItem("FIA_Biosum_Manager.exe")]
@@ -287,6 +287,39 @@ namespace Biosum_Manager_Test
             double actual;
             actual = target.SI_PP6(p_intSIDiaAge, p_intSIHtFt);
             Assert.AreEqual(expected, actual);
+            //Assert.Inconclusive("Verify the correctness of this test method.");
+        }
+
+        /// <summary>
+        ///A test for SI_DF2
+        ///</summary>
+        [TestMethod()]
+        [DeploymentItem("FIA_Biosum_Manager.exe")]
+        public void SI_DF2Test()
+        {
+            fvs_input_Accessor.site_index target = new fvs_input_Accessor.site_index();
+            int p_intSIDiaAge = 50;
+            int p_intSIHtFt = 20;
+            double actual;
+            string strHabTypeCd = "399";
+            double expected = 110.20875769753084;
+            actual = target.SI_DF2(p_intSIDiaAge, p_intSIHtFt, strHabTypeCd);
+            Assert.AreEqual(expected, actual);
+            strHabTypeCd = "500";
+            expected = 116.67275769753084;
+            actual = target.SI_DF2(p_intSIDiaAge, p_intSIHtFt, strHabTypeCd);
+            Assert.AreEqual(expected, actual);
+            strHabTypeCd = "530";
+            expected = 119.97325769753084;
+            actual = target.SI_DF2(p_intSIDiaAge, p_intSIHtFt, strHabTypeCd);
+            Assert.AreEqual(expected, actual);
+            // Test habTypeCd that is not an int
+            strHabTypeCd = "abc";
+            expected = 116.67275769753084;
+            actual = target.SI_DF2(p_intSIDiaAge, p_intSIHtFt, strHabTypeCd);
+            Assert.AreEqual(expected, actual);
+
+
             //Assert.Inconclusive("Verify the correctness of this test method.");
         }
 
