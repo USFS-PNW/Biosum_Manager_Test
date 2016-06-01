@@ -323,5 +323,39 @@ namespace Biosum_Manager_Test
             //Assert.Inconclusive("Verify the correctness of this test method.");
         }
 
+        /// <summary>
+        ///A test for THPL03
+        ///</summary>
+        [TestMethod()]
+        [DeploymentItem("FIA_Biosum_Manager.exe")]
+        public void THPL03Test()
+        {
+            fvs_input_Accessor.site_index target = new fvs_input_Accessor.site_index();
+            int p_intSIDiaAge = 50;
+            int p_intSIHtFt = 100;
+            double expected = 167.32893343760284;
+            double actual;
+            actual = target.THPL03(p_intSIDiaAge, p_intSIHtFt);
+            Assert.AreEqual(expected, actual);
+            //Assert.Inconclusive("Verify the correctness of this test method.");
+        }
+
+        /// <summary>
+        ///A test for SI_RA1
+        ///</summary>
+        [TestMethod()]
+        [DeploymentItem("FIA_Biosum_Manager.exe")]
+        public void SI_RA1Test()
+        {
+            fvs_input_Accessor.site_index target = new fvs_input_Accessor.site_index();
+            int p_intSIDiaAge = 50;
+            int p_intSIHtFt = 20;
+            double expected = 17.238863520000024;
+            double actual;
+            actual = target.SI_RA1(p_intSIDiaAge, p_intSIHtFt);
+            Assert.AreEqual(expected, actual);
+            //Assert.Inconclusive("Verify the correctness of this test method.");
+        }
+
     }
 }
