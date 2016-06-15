@@ -19,6 +19,7 @@ namespace Biosum_Manager_Test
         private TestContext testContextInstance;
         private string testDirectory = "C:\\Docs\\Lesley\\fia_biosum\\Docs\\Site Index";
         private double conditionClassAverageDia;
+        private double conditionClassBasalArea;
         private string TreeTable = "TREE";
         private string SiteTreeTable = "SITETREE";
         private string BiosumPlotId;
@@ -168,13 +169,11 @@ namespace Biosum_Manager_Test
             List<List<string>> lstPlotCond = new List<List<string>>();
             Int16 idxPlotId = 0;
             Int16 idxCondId = 1;
-            Int16 idxBasalArea = 2;
             while (oAdo.m_OleDbDataReader.Read())
             {
                 List<string> lstPlot = new List<string>();
                 lstPlot.Add(Convert.ToString(oAdo.m_OleDbDataReader["biosum_plot_id"]).Trim());
                 lstPlot.Add(Convert.ToString(oAdo.m_OleDbDataReader["condid"]).Trim());
-                lstPlot.Add(Convert.ToString(oAdo.m_OleDbDataReader["ba_ft2_ac"]).Trim());
                 lstPlotCond.Add(lstPlot);
             }
 
@@ -199,11 +198,10 @@ namespace Biosum_Manager_Test
             "AND s.validcd <> 0";
 
 
-                double p_dblBasalArea = Convert.ToDouble(lstPlot[idxBasalArea]);
-                getAvgDbhOnPlot(Convert.ToInt32(condId));
+            getAvgDbhOnPlot(Convert.ToInt32(condId));
 
                 //Console.WriteLine(strSQL);
-                oAdo.SqlQueryReader(oAdo.m_OleDbConnection, strSQL);
+            oAdo.SqlQueryReader(oAdo.m_OleDbConnection, strSQL);
             if (oAdo.m_OleDbDataReader.HasRows)
             {
                 while (oAdo.m_OleDbDataReader.Read())
@@ -214,8 +212,8 @@ namespace Biosum_Manager_Test
                     int intCondId = Convert.ToInt32(oAdo.m_OleDbDataReader["condid"]);
                     int treeId = Convert.ToInt32(oAdo.m_OleDbDataReader["tree"]);
                     string key = this.BiosumPlotId + "_" + intCondId + "_" + treeId;
-                    double siteIndex = target.SI_LP5(intCurAgeDia, intCurHtFt, p_dblBasalArea, this.conditionClassAverageDia);
-                    string value = Convert.ToString(this.conditionClassAverageDia) + "_" + Convert.ToString(p_dblBasalArea) + "_" + Convert.ToString(siteIndex);
+                    double siteIndex = target.SI_LP5(intCurAgeDia, intCurHtFt, this.conditionClassBasalArea, this.conditionClassAverageDia);
+                    string value = Convert.ToString(this.conditionClassAverageDia) + "_" + Convert.ToString(this.conditionClassBasalArea) + "_" + Convert.ToString(siteIndex);
                     siteIndexRecords.Add(key, value);
                 }
             }
@@ -244,6 +242,7 @@ namespace Biosum_Manager_Test
         {
 
             this.conditionClassAverageDia = 0;
+            this.conditionClassBasalArea = 0;
 
             ado_data_access _oAdo = new ado_data_access();
 
@@ -251,26 +250,38 @@ namespace Biosum_Manager_Test
             _oAdo.OpenConnection(_oAdo.getMDBConnString(testDirectory.Trim() +
                 "\\" + databaseName, "", ""));
 
-            _oAdo.m_strSQL = "SELECT AvgDia " +
-                "FROM " +
-                //@ToDo: Reference to t.statuscd and t.dia >=1 are not in production code for calculating avg dbh
-                //Currently discussing if this should be changed
-                "(SELECT SUM(IIF(t.tpacurr IS NOT NULL AND t.dia IS NOT NULL AND t.statuscd=1  AND t.dia >= 1," +
-                "t.tpacurr * t.dia,0)) AS dividend," +
-                "SUM(IIF(t.tpacurr IS NOT NULL and t.dia IS NOT NULL AND t.statuscd=1  AND t.dia >= 1," +
-                "t.tpacurr,0)) as divisor," +
-                "IIF(dividend > 0 AND divisor > 0," +
-                "dividend / divisor,0) AS AvgDia " +
-                "FROM " + this.TreeTable + " t " +
-                "WHERE biosum_cond_id = '" +
-                this.BiosumPlotId + Convert.ToString(p_intCondId).Trim() + "' " +
-                "AND t.statuscd=1)";
+            string strSQL = "SELECT t.tpacurr, t.dia " +
+                            "FROM " + this.TreeTable + " t " +
+                            "WHERE t.biosum_cond_id = '" +
+                            this.BiosumPlotId + Convert.ToString(p_intCondId).Trim() +
+                            "' AND t.statuscd=1 AND t.tpacurr IS NOT NULL and t.dia IS NOT NULL AND t.dia >= 1";
 
-            this.conditionClassAverageDia = _oAdo.getSingleDoubleValueFromSQLQuery(
-                _oAdo.m_OleDbConnection, _oAdo.m_strSQL, "temp");
+            _oAdo.SqlQueryReader(_oAdo.m_OleDbConnection, strSQL);
+            
+            //Variables to accumulate the data from the tree table
+            double dblCount = 0;
+            double dblDia = 0;
+            double dblBasalArea = 0;
+            if (_oAdo.m_OleDbDataReader.HasRows)
+            {
+                while (_oAdo.m_OleDbDataReader.Read())
+                {
+                    double tempTpa = Convert.ToDouble(_oAdo.m_OleDbDataReader["tpacurr"]);
+                    double tempDia = Convert.ToDouble(_oAdo.m_OleDbDataReader["dia"]);
+                    dblCount = dblCount + tempTpa;
+                    dblDia = dblDia + tempDia * tempTpa;
+                    dblBasalArea = dblBasalArea + (Math.Pow(tempDia, 2) * 0.00545415) * tempTpa;
+                }
+            }
+
             _oAdo.CloseConnection(_oAdo.m_OleDbConnection);
-
             _oAdo = null;
+
+            if (dblCount > 0)
+            {
+                this.conditionClassAverageDia = dblDia / dblCount;
+            }
+            this.conditionClassBasalArea = dblBasalArea;
         }
 
         /// <summary>
