@@ -17,7 +17,7 @@ namespace Biosum_Manager_Test
 
 
         private TestContext testContextInstance;
-        private string testDirectory = "C:\\Docs\\Lesley\\fia_biosum\\Docs\\Site Index";
+        private string testDirectory = "C:\\Docs\\Lesley\\fia_biosum\\Docs\\Site Index\\Testing";
         private double conditionClassAverageDia;
         private double conditionClassBasalArea;
         private string TreeTable = "TREE";
@@ -96,14 +96,70 @@ namespace Biosum_Manager_Test
         [DeploymentItem("FIA_Biosum_Manager.exe")]
         public void PSME11Test()
         {
-            fvs_input_Accessor.site_index target = new fvs_input_Accessor.site_index(); // TODO: Initialize to an appropriate value
-            int p_intSIDiaAge = 100; // TODO: Initialize to an appropriate value
-            int p_intSIHtFt = 100; // TODO: Initialize to an appropriate value
-            double expected = 0F; // TODO: Initialize to an appropriate value
-            double actual;
-            actual = target.PSME11(p_intSIDiaAge, p_intSIHtFt);
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
+            fvs_input_Accessor.site_index target = new fvs_input_Accessor.site_index();
+            databaseName = "SiteTree4Jeremy.accdb";
+            ado_data_access oAdo = new ado_data_access();
+
+            //open the project db file; db name is hard-coded
+            oAdo.OpenConnection(oAdo.getMDBConnString(testDirectory.Trim() +
+                "\\" + databaseName, "", ""));
+
+            //add column for results if it doesn't exist
+            string resultsColumn = "calc_si";
+            if (!oAdo.ColumnExist(oAdo.m_OleDbConnection, "29_PSME11", resultsColumn))
+            {
+                oAdo.AddColumn(oAdo.m_OleDbConnection, "29_PSME11", resultsColumn, "DOUBLE", "");
+            }
+            //Reset site tree table name for this test
+            this.SiteTreeTable = "29_PSME11";
+
+            Dictionary<string, string> siteIndexRecords = new Dictionary<string, string>();
+            string strSQL = "SELECT s.biosum_plot_id," +
+            "s.condid," +
+            "s.tree," +
+            "s.spcd," +
+            "s.dia," +
+            "s.ht," +
+            "s.agedia," +
+            "s.subp," +
+            "s.method," +
+            "s.validcd " +
+            "FROM " + this.SiteTreeTable + " s " +
+            "WHERE s.validcd <> 0";
+
+                //Console.WriteLine(strSQL);
+                oAdo.SqlQueryReader(oAdo.m_OleDbConnection, strSQL);
+                if (oAdo.m_OleDbDataReader.HasRows)
+                {
+                    while (oAdo.m_OleDbDataReader.Read())
+                    {
+                        //int intCurFIASpecies = Convert.ToInt32(oAdo.m_DataSet.Tables["GetSiteIndex"].Rows[y]["spcd"]);
+                        string biosumPlotId = Convert.ToString(oAdo.m_OleDbDataReader["biosum_plot_id"]);
+                        int intCurAgeDia = Convert.ToInt32(oAdo.m_OleDbDataReader["agedia"]);
+                        int intCurHtFt = Convert.ToInt32(oAdo.m_OleDbDataReader["ht"]);
+                        int intCondId = Convert.ToInt32(oAdo.m_OleDbDataReader["condid"]);
+                        int treeId = Convert.ToInt32(oAdo.m_OleDbDataReader["tree"]);
+                        string key = biosumPlotId + "_" + intCondId + "_" + treeId;
+                        double siteIndex = target.PSME11(intCurAgeDia, intCurHtFt);
+                        siteIndexRecords.Add(key, Convert.ToString(siteIndex));
+                    }
+                }
+
+            foreach (string key in siteIndexRecords.Keys)
+            {
+                string[] keyValues = key.Split('_');
+                string result = siteIndexRecords[key];
+                oAdo.m_strSQL = "UPDATE " + this.SiteTreeTable + " " +
+                    "SET " + resultsColumn + " = " + result + 
+                    " WHERE biosum_plot_id = '" + keyValues[0] + "' " +
+                    "AND condid = " + keyValues[1] + " " +
+                    "AND tree = " + keyValues[2];
+                oAdo.SqlNonQuery(oAdo.m_OleDbConnection, oAdo.m_strSQL);
+            }
+
+            oAdo.CloseConnection(oAdo.m_OleDbConnection);
+
+            oAdo = null;
         }
 
         /// <summary>
@@ -113,14 +169,70 @@ namespace Biosum_Manager_Test
         [DeploymentItem("FIA_Biosum_Manager.exe")]
         public void SI_AS1Test()
         {
-            fvs_input_Accessor.site_index target = new fvs_input_Accessor.site_index(); // TODO: Initialize to an appropriate value
-            int p_intSIDiaAge = 100;
-            int p_intSIHtFt = 49;
-            double expected = 0F; // TODO: Initialize to an appropriate value
-            double actual;
-            actual = target.SI_AS1(p_intSIDiaAge, p_intSIHtFt);
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
+            fvs_input_Accessor.site_index target = new fvs_input_Accessor.site_index();
+            databaseName = "SiteTree4Jeremy.accdb";
+            ado_data_access oAdo = new ado_data_access();
+
+            //open the project db file; db name is hard-coded
+            oAdo.OpenConnection(oAdo.getMDBConnString(testDirectory.Trim() +
+                "\\" + databaseName, "", ""));
+
+            //add column for results if it doesn't exist
+            string resultsColumn = "calc_si";
+            if (!oAdo.ColumnExist(oAdo.m_OleDbConnection, "30_SI_AS1", resultsColumn))
+            {
+                oAdo.AddColumn(oAdo.m_OleDbConnection, "30_SI_AS1", resultsColumn, "DOUBLE", "");
+            }
+            //Reset site tree table name for this test
+            this.SiteTreeTable = "30_SI_AS1";
+
+            Dictionary<string, string> siteIndexRecords = new Dictionary<string, string>();
+            string strSQL = "SELECT s.biosum_plot_id," +
+            "s.condid," +
+            "s.tree," +
+            "s.spcd," +
+            "s.dia," +
+            "s.ht," +
+            "s.agedia," +
+            "s.subp," +
+            "s.method," +
+            "s.validcd " +
+            "FROM " + this.SiteTreeTable + " s " +
+            "WHERE s.validcd <> 0";
+
+            //Console.WriteLine(strSQL);
+            oAdo.SqlQueryReader(oAdo.m_OleDbConnection, strSQL);
+            if (oAdo.m_OleDbDataReader.HasRows)
+            {
+                while (oAdo.m_OleDbDataReader.Read())
+                {
+                    //int intCurFIASpecies = Convert.ToInt32(oAdo.m_DataSet.Tables["GetSiteIndex"].Rows[y]["spcd"]);
+                    string biosumPlotId = Convert.ToString(oAdo.m_OleDbDataReader["biosum_plot_id"]);
+                    int intCurAgeDia = Convert.ToInt32(oAdo.m_OleDbDataReader["agedia"]);
+                    int intCurHtFt = Convert.ToInt32(oAdo.m_OleDbDataReader["ht"]);
+                    int intCondId = Convert.ToInt32(oAdo.m_OleDbDataReader["condid"]);
+                    int treeId = Convert.ToInt32(oAdo.m_OleDbDataReader["tree"]);
+                    string key = biosumPlotId + "_" + intCondId + "_" + treeId;
+                    double siteIndex = target.SI_AS1(intCurAgeDia, intCurHtFt);
+                    siteIndexRecords.Add(key, Convert.ToString(siteIndex));
+                }
+            }
+
+            foreach (string key in siteIndexRecords.Keys)
+            {
+                string[] keyValues = key.Split('_');
+                string result = siteIndexRecords[key];
+                oAdo.m_strSQL = "UPDATE " + this.SiteTreeTable + " " +
+                    "SET " + resultsColumn + " = " + result +
+                    " WHERE biosum_plot_id = '" + keyValues[0] + "' " +
+                    "AND condid = " + keyValues[1] + " " +
+                    "AND tree = " + keyValues[2];
+                oAdo.SqlNonQuery(oAdo.m_OleDbConnection, oAdo.m_strSQL);
+            }
+
+            oAdo.CloseConnection(oAdo.m_OleDbConnection);
+
+            oAdo = null;
         }
 
         /// <summary>
@@ -292,13 +404,69 @@ namespace Biosum_Manager_Test
         public void SI_PP6Test()
         {
             fvs_input_Accessor.site_index target = new fvs_input_Accessor.site_index();
-            int p_intSIDiaAge = 50;
-            int p_intSIHtFt = 15;
-            double expected = 17.231740622278654;
-            double actual;
-            actual = target.SI_PP6(p_intSIDiaAge, p_intSIHtFt);
-            Assert.AreEqual(expected, actual);
-            //Assert.Inconclusive("Verify the correctness of this test method.");
+            databaseName = "SiteTree4Jeremy.accdb";
+            ado_data_access oAdo = new ado_data_access();
+
+            //open the project db file; db name is hard-coded
+            oAdo.OpenConnection(oAdo.getMDBConnString(testDirectory.Trim() +
+                "\\" + databaseName, "", ""));
+
+            //add column for results if it doesn't exist
+            string resultsColumn = "calc_si";
+            if (!oAdo.ColumnExist(oAdo.m_OleDbConnection, "36_SI_PP6", resultsColumn))
+            {
+                oAdo.AddColumn(oAdo.m_OleDbConnection, "36_SI_PP6", resultsColumn, "DOUBLE", "");
+            }
+            //Reset site tree table name for this test
+            this.SiteTreeTable = "36_SI_PP6";
+
+            Dictionary<string, string> siteIndexRecords = new Dictionary<string, string>();
+            string strSQL = "SELECT s.biosum_plot_id," +
+            "s.condid," +
+            "s.tree," +
+            "s.spcd," +
+            "s.dia," +
+            "s.ht," +
+            "s.agedia," +
+            "s.subp," +
+            "s.method," +
+            "s.validcd " +
+            "FROM " + this.SiteTreeTable + " s " +
+            "WHERE s.validcd <> 0";
+
+            //Console.WriteLine(strSQL);
+            oAdo.SqlQueryReader(oAdo.m_OleDbConnection, strSQL);
+            if (oAdo.m_OleDbDataReader.HasRows)
+            {
+                while (oAdo.m_OleDbDataReader.Read())
+                {
+                    //int intCurFIASpecies = Convert.ToInt32(oAdo.m_DataSet.Tables["GetSiteIndex"].Rows[y]["spcd"]);
+                    string biosumPlotId = Convert.ToString(oAdo.m_OleDbDataReader["biosum_plot_id"]);
+                    int intCurAgeDia = Convert.ToInt32(oAdo.m_OleDbDataReader["agedia"]);
+                    int intCurHtFt = Convert.ToInt32(oAdo.m_OleDbDataReader["ht"]);
+                    int intCondId = Convert.ToInt32(oAdo.m_OleDbDataReader["condid"]);
+                    int treeId = Convert.ToInt32(oAdo.m_OleDbDataReader["tree"]);
+                    string key = biosumPlotId + "_" + intCondId + "_" + treeId;
+                    double siteIndex = target.SI_PP6(intCurAgeDia, intCurHtFt);
+                    siteIndexRecords.Add(key, Convert.ToString(siteIndex));
+                }
+            }
+
+            foreach (string key in siteIndexRecords.Keys)
+            {
+                string[] keyValues = key.Split('_');
+                string result = siteIndexRecords[key];
+                oAdo.m_strSQL = "UPDATE " + this.SiteTreeTable + " " +
+                    "SET " + resultsColumn + " = " + result +
+                    " WHERE biosum_plot_id = '" + keyValues[0] + "' " +
+                    "AND condid = " + keyValues[1] + " " +
+                    "AND tree = " + keyValues[2];
+                oAdo.SqlNonQuery(oAdo.m_OleDbConnection, oAdo.m_strSQL);
+            }
+
+            oAdo.CloseConnection(oAdo.m_OleDbConnection);
+
+            oAdo = null;
         }
 
         /// <summary>
@@ -309,29 +477,71 @@ namespace Biosum_Manager_Test
         public void SI_DF2Test()
         {
             fvs_input_Accessor.site_index target = new fvs_input_Accessor.site_index();
-            int p_intSIDiaAge = 50;
-            int p_intSIHtFt = 20;
-            double actual;
-            string strHabTypeCd = "399";
-            double expected = 110.20875769753084;
-            actual = target.SI_DF2(p_intSIDiaAge, p_intSIHtFt, strHabTypeCd);
-            Assert.AreEqual(expected, actual);
-            strHabTypeCd = "500";
-            expected = 116.67275769753084;
-            actual = target.SI_DF2(p_intSIDiaAge, p_intSIHtFt, strHabTypeCd);
-            Assert.AreEqual(expected, actual);
-            strHabTypeCd = "530";
-            expected = 119.97325769753084;
-            actual = target.SI_DF2(p_intSIDiaAge, p_intSIHtFt, strHabTypeCd);
-            Assert.AreEqual(expected, actual);
-            // Test habTypeCd that is not an int
-            strHabTypeCd = "abc";
-            expected = 116.67275769753084;
-            actual = target.SI_DF2(p_intSIDiaAge, p_intSIHtFt, strHabTypeCd);
-            Assert.AreEqual(expected, actual);
+            databaseName = "SiteTree4Jeremy.accdb";
+            ado_data_access oAdo = new ado_data_access();
 
+            //open the project db file; db name is hard-coded
+            oAdo.OpenConnection(oAdo.getMDBConnString(testDirectory.Trim() +
+                "\\" + databaseName, "", ""));
 
-            //Assert.Inconclusive("Verify the correctness of this test method.");
+            //add column for results if it doesn't exist
+            string resultsColumn = "calc_si";
+            if (!oAdo.ColumnExist(oAdo.m_OleDbConnection, "37_SI_DF2", resultsColumn))
+            {
+                oAdo.AddColumn(oAdo.m_OleDbConnection, "37_SI_DF2", resultsColumn, "DOUBLE", "");
+            }
+            //Reset site tree table name for this test
+            this.SiteTreeTable = "37_SI_DF2";
+
+            Dictionary<string, string> siteIndexRecords = new Dictionary<string, string>();
+            string strSQL = "SELECT s.biosum_plot_id," +
+            "s.condid," +
+            "s.tree," +
+            "s.spcd," +
+            "s.dia," +
+            "s.ht," +
+            "s.agedia," +
+            "s.subp," +
+            "s.method," +
+            "s.validcd, " +
+            "s.habtypcd1 " +
+            "FROM " + this.SiteTreeTable + " s " +
+            "WHERE s.validcd <> 0";
+
+            //Console.WriteLine(strSQL);
+            oAdo.SqlQueryReader(oAdo.m_OleDbConnection, strSQL);
+            if (oAdo.m_OleDbDataReader.HasRows)
+            {
+                while (oAdo.m_OleDbDataReader.Read())
+                {
+                    //int intCurFIASpecies = Convert.ToInt32(oAdo.m_DataSet.Tables["GetSiteIndex"].Rows[y]["spcd"]);
+                    string biosumPlotId = Convert.ToString(oAdo.m_OleDbDataReader["biosum_plot_id"]);
+                    int intCurAgeDia = Convert.ToInt32(oAdo.m_OleDbDataReader["agedia"]);
+                    int intCurHtFt = Convert.ToInt32(oAdo.m_OleDbDataReader["ht"]);
+                    int intCondId = Convert.ToInt32(oAdo.m_OleDbDataReader["condid"]);
+                    int treeId = Convert.ToInt32(oAdo.m_OleDbDataReader["tree"]);
+                    string habTypCd = Convert.ToString(oAdo.m_OleDbDataReader["habtypcd1"]);
+                    string key = biosumPlotId + "_" + intCondId + "_" + treeId;
+                    double siteIndex = target.SI_DF2(intCurAgeDia, intCurHtFt, habTypCd);
+                    siteIndexRecords.Add(key, Convert.ToString(siteIndex));
+                }
+            }
+
+            foreach (string key in siteIndexRecords.Keys)
+            {
+                string[] keyValues = key.Split('_');
+                string result = siteIndexRecords[key];
+                oAdo.m_strSQL = "UPDATE " + this.SiteTreeTable + " " +
+                    "SET " + resultsColumn + " = " + result +
+                    " WHERE biosum_plot_id = '" + keyValues[0] + "' " +
+                    "AND condid = " + keyValues[1] + " " +
+                    "AND tree = " + keyValues[2];
+                oAdo.SqlNonQuery(oAdo.m_OleDbConnection, oAdo.m_strSQL);
+            }
+
+            oAdo.CloseConnection(oAdo.m_OleDbConnection);
+
+            oAdo = null;
         }
 
         /// <summary>
