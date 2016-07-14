@@ -578,5 +578,78 @@ namespace Biosum_Manager_Test
             //Assert.Inconclusive("Verify the correctness of this test method.");
         }
 
+        /// <summary>
+        ///A test for zPIPO9
+        ///</summary>
+        [TestMethod()]
+        [DeploymentItem("FIA_Biosum_Manager.exe")]
+        public void zPIPO9Test()
+        {
+            fvs_input_Accessor.site_index target = new fvs_input_Accessor.site_index();
+            databaseName = "Predispose.mdb";
+            ado_data_access oAdo = new ado_data_access();
+
+            //open the project db file; db name is hard-coded
+            oAdo.OpenConnection(oAdo.getMDBConnString(testDirectory.Trim() +
+                "\\" + databaseName, "", ""));
+
+            //add column for results if it doesn't exist
+            string resultsColumn = "calc_si";
+            if (!oAdo.ColumnExist(oAdo.m_OleDbConnection, "sitetree", resultsColumn))
+            {
+                oAdo.AddColumn(oAdo.m_OleDbConnection, "sitetree", resultsColumn, "DOUBLE", "");
+            }
+            //Reset site tree table name for this test
+            this.SiteTreeTable = "sitetree";
+
+            Dictionary<string, string> siteIndexRecords = new Dictionary<string, string>();
+            string strSQL = "SELECT s.biosum_plot_id," +
+            "s.condid," +
+            "s.tree," +
+            "s.spcd," +
+            "s.dia," +
+            "s.ht," +
+            "s.agedia," +
+            "s.subp," +
+            "s.method," +
+            "s.validcd " +
+            "FROM " + this.SiteTreeTable + " s " +
+            "WHERE s.validcd <> 0 AND spcd = 122";
+
+            //Console.WriteLine(strSQL);
+            oAdo.SqlQueryReader(oAdo.m_OleDbConnection, strSQL);
+            if (oAdo.m_OleDbDataReader.HasRows)
+            {
+                while (oAdo.m_OleDbDataReader.Read())
+                {
+                    //int intCurFIASpecies = Convert.ToInt32(oAdo.m_DataSet.Tables["GetSiteIndex"].Rows[y]["spcd"]);
+                    string biosumPlotId = Convert.ToString(oAdo.m_OleDbDataReader["biosum_plot_id"]);
+                    int intCurAgeDia = Convert.ToInt32(oAdo.m_OleDbDataReader["agedia"]);
+                    int intCurHtFt = Convert.ToInt32(oAdo.m_OleDbDataReader["ht"]);
+                    int intCondId = Convert.ToInt32(oAdo.m_OleDbDataReader["condid"]);
+                    int treeId = Convert.ToInt32(oAdo.m_OleDbDataReader["tree"]);
+                    string key = biosumPlotId + "_" + intCondId + "_" + treeId;
+                    double siteIndex = target.zPIPO9(intCurAgeDia, intCurHtFt);
+                    siteIndexRecords.Add(key, Convert.ToString(siteIndex));
+                }
+            }
+
+            foreach (string key in siteIndexRecords.Keys)
+            {
+                string[] keyValues = key.Split('_');
+                string result = siteIndexRecords[key];
+                oAdo.m_strSQL = "UPDATE " + this.SiteTreeTable + " " +
+                    "SET " + resultsColumn + " = " + result +
+                    " WHERE biosum_plot_id = '" + keyValues[0] + "' " +
+                    "AND condid = " + keyValues[1] + " " +
+                    "AND tree = " + keyValues[2];
+                oAdo.SqlNonQuery(oAdo.m_OleDbConnection, oAdo.m_strSQL);
+            }
+
+            oAdo.CloseConnection(oAdo.m_OleDbConnection);
+
+            oAdo = null;
+        }
+
     }
 }
