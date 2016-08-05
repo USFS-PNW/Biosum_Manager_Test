@@ -70,7 +70,7 @@ namespace Biosum_Manager_Test
         [TestMethod()]
         public void processorConstructorTest()
         {
-            processor target = new processor();
+            processor target = new processor("biosum_processor_object_debug.txt");
             Assert.Inconclusive("TODO: Implement code to verify target");
         }
 
@@ -80,7 +80,7 @@ namespace Biosum_Manager_Test
         [TestMethod()]
         public void initTest()
         {
-            processor target = new processor();
+            processor target = new processor("biosum_processor_object_debug.txt");
             frmMain tempFrmMain = new frmMain();
             tempFrmMain.button_click("CASE STUDY SCENARIO");
             frmMain.g_oFrmMain = tempFrmMain;
@@ -97,7 +97,7 @@ namespace Biosum_Manager_Test
         [DeploymentItem("FIA_Biosum_Manager.exe")]
         public void loadTreesTest()
         {
-            processor_Accessor target = new processor_Accessor();
+            processor_Accessor target = new processor_Accessor("biosum_processor_object_debug.txt");
             // Initialize framework needed to run tests that is normally in the UI
             frmMain tempFrmMain = new frmMain();
             tempFrmMain.button_click("CASE STUDY SCENARIO");
