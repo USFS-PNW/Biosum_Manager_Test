@@ -104,11 +104,14 @@ namespace Biosum_Manager_Test
             frmMain.g_oFrmMain = tempFrmMain;
             frmMain.g_oFrmMain.frmProject.uc_project1.txtRootDirectory.Text =
                 "C:\\workspace\\BioSum\\biosum_data\\bluemountains";
+            frmMain.g_intDebugLevel = 3;
+            frmMain.g_bDebug = true;
             target.init();
 
             string p_strVariant = "BM";
             string p_strRxPackage = "001";
             target.loadTrees(p_strVariant, p_strRxPackage);
+            target.createOpcostInput();
             //Assert.Inconclusive("A method that does not return a value cannot be verified.");
         }
     }
