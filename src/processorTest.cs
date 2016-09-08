@@ -70,7 +70,7 @@ namespace Biosum_Manager_Test
         [TestMethod()]
         public void processorConstructorTest()
         {
-            processor target = new processor("biosum_processor_object_debug.txt");
+            processor target = new processor("biosum_processor_object_debug.txt", "scenario1");
             Assert.Inconclusive("TODO: Implement code to verify target");
         }
 
@@ -80,7 +80,7 @@ namespace Biosum_Manager_Test
         [TestMethod()]
         public void initTest()
         {
-            processor target = new processor("biosum_processor_object_debug.txt");
+            processor target = new processor("biosum_processor_object_debug.txt", "scenario1");
             frmMain tempFrmMain = new frmMain();
             tempFrmMain.button_click("CASE STUDY SCENARIO");
             frmMain.g_oFrmMain = tempFrmMain;
@@ -97,7 +97,6 @@ namespace Biosum_Manager_Test
         [DeploymentItem("FIA_Biosum_Manager.exe")]
         public void loadTreesTest()
         {
-            processor_Accessor target = new processor_Accessor("biosum_processor_object_debug.txt");
             // Initialize framework needed to run tests that is normally in the UI
             frmMain tempFrmMain = new frmMain();
             tempFrmMain.button_click("CASE STUDY SCENARIO");
@@ -106,12 +105,14 @@ namespace Biosum_Manager_Test
                 "C:\\workspace\\BioSum\\biosum_data\\bluemountains";
             frmMain.g_intDebugLevel = 3;
             frmMain.g_bDebug = true;
-            target.init();
+            processor_Accessor target = new processor_Accessor(frmMain.g_oEnv.strTempDir + "\\biosum_processor_debug.txt", "scenario1");
+            Queries p_oQueries = target.init();
 
             string p_strVariant = "BM";
-            string p_strRxPackage = "001";
-            target.loadTrees(p_strVariant, p_strRxPackage);
-            target.createOpcostInput();
+            string p_strRxPackage = "004";
+            target.loadTrees(p_strVariant, p_strRxPackage, p_oQueries.m_strTempDbFile);
+            target.createOpcostInput(p_oQueries.m_strTempDbFile);
+            target.updateTreeVolVal(DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss tt"), p_oQueries.m_strTempDbFile);
             //Assert.Inconclusive("A method that does not return a value cannot be verified.");
         }
     }
