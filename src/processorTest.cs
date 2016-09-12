@@ -111,8 +111,9 @@ namespace Biosum_Manager_Test
             string p_strVariant = "BM";
             string p_strRxPackage = "004";
             target.loadTrees(p_strVariant, p_strRxPackage, p_oQueries.m_strTempDbFile);
+            target.updateTrees(p_strVariant, p_strRxPackage, p_oQueries.m_strTempDbFile);
             target.createOpcostInput(p_oQueries.m_strTempDbFile);
-            target.updateTreeVolVal(DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss tt"), p_oQueries.m_strTempDbFile);
+            target.createTreeVolValWorkTable(DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss tt"), p_oQueries.m_strTempDbFile, true);
             //Assert.Inconclusive("A method that does not return a value cannot be verified.");
         }
     }
