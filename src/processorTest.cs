@@ -70,7 +70,8 @@ namespace Biosum_Manager_Test
         [TestMethod()]
         public void processorConstructorTest()
         {
-            processor target = new processor("biosum_processor_object_debug.txt", "scenario1");
+            ado_data_access oAdo = new ado_data_access();
+            processor target = new processor("biosum_processor_object_debug.txt", "scenario1", oAdo);
             Assert.Inconclusive("TODO: Implement code to verify target");
         }
 
@@ -80,7 +81,8 @@ namespace Biosum_Manager_Test
         [TestMethod()]
         public void initTest()
         {
-            processor target = new processor("biosum_processor_object_debug.txt", "scenario1");
+            ado_data_access oAdo = new ado_data_access();
+            processor target = new processor("biosum_processor_object_debug.txt", "scenario1", oAdo);
             frmMain tempFrmMain = new frmMain();
             tempFrmMain.button_click("CASE STUDY SCENARIO");
             frmMain.g_oFrmMain = tempFrmMain;
@@ -102,18 +104,22 @@ namespace Biosum_Manager_Test
             tempFrmMain.button_click("CASE STUDY SCENARIO");
             frmMain.g_oFrmMain = tempFrmMain;
             frmMain.g_oFrmMain.frmProject.uc_project1.txtRootDirectory.Text =
-                "C:\\workspace\\BioSum\\biosum_data\\bluemountains";
+                "C:\\workspace\\BioSum\\biosum_data\\clearcut_CA";
+                //"C:\\workspace\\BioSum\\biosum_data\\bluemountains_curr";
             frmMain.g_intDebugLevel = 3;
             frmMain.g_bDebug = true;
-            processor_Accessor target = new processor_Accessor(frmMain.g_oEnv.strTempDir + "\\biosum_processor_debug.txt", "scenario1");
+            ado_data_access oAdo = new ado_data_access();
+            processor_Accessor target = new processor_Accessor(frmMain.g_oEnv.strTempDir + "\\biosum_processor_debug.txt", "scenario1", oAdo);
             Queries p_oQueries = target.init();
 
-            string p_strVariant = "BM";
-            string p_strRxPackage = "004";
-            target.loadTrees(p_strVariant, p_strRxPackage, p_oQueries.m_strTempDbFile);
-            target.updateTrees(p_strVariant, p_strRxPackage, p_oQueries.m_strTempDbFile, true);
-            target.createOpcostInput(p_oQueries.m_strTempDbFile);
-            target.createTreeVolValWorkTable(DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss tt"), p_oQueries.m_strTempDbFile, true);
+            //string p_strVariant = "BM";
+            //string p_strRxPackage = "001";
+            string p_strVariant = "CA";
+            string p_strRxPackage = "001";
+            target.loadTrees(p_strVariant, p_strRxPackage);
+            target.updateTrees(p_strVariant, p_strRxPackage, false);
+            target.createOpcostInput();
+            target.createTreeVolValWorkTable(DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss tt"),true);
             //Assert.Inconclusive("A method that does not return a value cannot be verified.");
         }
     }
