@@ -71,7 +71,8 @@ namespace Biosum_Manager_Test
         public void processorConstructorTest()
         {
             ado_data_access oAdo = new ado_data_access();
-            processor target = new processor("biosum_processor_object_debug.txt", "scenario1", oAdo);
+            Queries oQueries = new Queries();
+            processor target = new processor("biosum_processor_object_debug.txt", "scenario1", oAdo, oQueries);
             Assert.Inconclusive("TODO: Implement code to verify target");
         }
 
@@ -82,7 +83,8 @@ namespace Biosum_Manager_Test
         public void initTest()
         {
             ado_data_access oAdo = new ado_data_access();
-            processor target = new processor("biosum_processor_object_debug.txt", "scenario1", oAdo);
+            Queries oQueries = new Queries();
+            processor target = new processor("biosum_processor_object_debug.txt", "scenario1", oAdo, oQueries);
             frmMain tempFrmMain = new frmMain();
             tempFrmMain.button_click("CASE STUDY SCENARIO");
             frmMain.g_oFrmMain = tempFrmMain;
@@ -109,7 +111,8 @@ namespace Biosum_Manager_Test
             frmMain.g_intDebugLevel = 3;
             frmMain.g_bDebug = true;
             ado_data_access oAdo = new ado_data_access();
-            processor_Accessor target = new processor_Accessor(frmMain.g_oEnv.strTempDir + "\\biosum_processor_debug.txt", "scenario1", oAdo);
+            Queries oQueries = new Queries();
+            processor_Accessor target = new processor_Accessor(frmMain.g_oEnv.strTempDir + "\\biosum_processor_debug.txt", "scenario1", oAdo, oQueries);
             Queries p_oQueries = target.init();
 
             //string p_strVariant = "BM";
