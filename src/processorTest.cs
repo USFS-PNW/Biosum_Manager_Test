@@ -106,19 +106,19 @@ namespace Biosum_Manager_Test
             tempFrmMain.button_click("CASE STUDY SCENARIO");
             frmMain.g_oFrmMain = tempFrmMain;
             frmMain.g_oFrmMain.frmProject.uc_project1.txtRootDirectory.Text =
-                "C:\\workspace\\BioSum\\biosum_data\\clearcut_CA";
+                "C:\\workspace\\BioSum\\biosum_data\\bluemountains_curr_578";
                 //"C:\\workspace\\BioSum\\biosum_data\\bluemountains_curr";
             frmMain.g_intDebugLevel = 3;
             frmMain.g_bDebug = true;
             ado_data_access oAdo = new ado_data_access();
             Queries oQueries = new Queries();
             processor_Accessor target = new processor_Accessor(frmMain.g_oEnv.strTempDir + "\\biosum_processor_debug.txt", "scenario1", oAdo, oQueries);
-            Queries p_oQueries = target.init();
+            target.init();
 
-            //string p_strVariant = "BM";
-            //string p_strRxPackage = "001";
-            string p_strVariant = "CA";
+            string p_strVariant = "BM";
             string p_strRxPackage = "001";
+            //string p_strVariant = "CA";
+            //string p_strRxPackage = "001";
             target.loadTrees(p_strVariant, p_strRxPackage);
             target.updateTrees(p_strVariant, p_strRxPackage, false);
             target.createOpcostInput();
